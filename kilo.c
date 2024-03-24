@@ -1,3 +1,4 @@
+/* includes */
 #include<stdio.h>
 #include<unistd.h>
 #include<errno.h>
@@ -5,26 +6,58 @@
 #include<ctype.h>
 #include<stdlib.h>
 
+/* defines */
+#define CTRL_KEY(k) ((k) & 0x1f)
+
+/* data */
 struct termios orig_termios;
-void enableRawMode(void);
-void disableRawMode(void);
-void die(const char*);
+
+/* terminal */
+void enableRawMode(void); // enabling raw mode
+void disableRawMode(void); //disabling raw mode after program is exited;
+void die(const char*); // for error handling
+char editorReadKey(void); // waits for a keypress and return it
+
+/* output */
+void editorRefreshScreen(void); // to refresh the screen initially
+
+/* input */
+void editorProcessKeypress(void); // waits for a keypress and then handles it
 
 int main()
 {
     enableRawMode();
 
     while (1) {
-        char c = '\0';
-        if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
-    if (iscntrl(c)) {
-            printf("%d\r\n", c);
-        } else {
-            printf("%d ('%c')\r\n", c, c);
-        }
-        if (c == 'q') break;
+        editorRefreshScreen();
+        editorProcessKeypress();
   }
     return 0;
+}
+
+void editorRefreshScreen(){
+    write(STDOUT_FILENO,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
+    write(STDOUT_FILENO,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
+}
+
+void editorProcessKeypress(){
+    char c = editorReadKey();
+
+    switch(c){
+        case CTRL_KEY('q'):
+            write(STDOUT_FILENO,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
+            write(STDOUT_FILENO,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
+            exit(EXIT_SUCCESS);
+            break;
+    }
+}
+char editorReadKey(){
+    int nread;
+    char c;
+    while((nread = read(STDIN_FILENO,&c,1)) != 1){
+        if(nread == -1 && errno != EAGAIN) die("read");
+    }
+    return c;
 }
 
 void enableRawMode(void){
@@ -49,6 +82,8 @@ void disableRawMode(void){
 }
 
 void die(const char* message){
+    write(STDOUT_FILENO,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
+    write(STDOUT_FILENO,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
     perror(message);
     exit(EXIT_FAILURE);
 }
