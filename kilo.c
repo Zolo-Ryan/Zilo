@@ -24,6 +24,7 @@ void disableRawMode(void); //disabling raw mode after program is exited;
 void die(const char*); // for error handling
 char editorReadKey(void); // waits for a keypress and return it
 int getWindowSize(int*,int*);
+int getCursorPosition(int*,int*);
 
 /* output */
 void editorRefreshScreen(void); // to refresh the screen initially
@@ -43,20 +44,40 @@ int main()
     while (1) {
         editorRefreshScreen();
         editorProcessKeypress();
-  }
+    }
     return 0;
 }
+
 
 void initEditor(){
     if(getWindowSize(&E.screenrows,&E.screencols) == -1) die("getWindowSize");
 }
 
+int getCursorPosition(int *rows,int *cols){
+    char buf[32];
+    unsigned int i = 0;
+
+    if(write(STDOUT_FILENO,"\x1b[6n",4) != 4) return -1; // gives the cursor position which we will read from the stdin
+    
+    while(i < sizeof(buf) - 1){
+        if(read(STDIN_FILENO,&buf[i],1) != 1) break;
+        if(buf[i] == 'R') break;
+        i++;
+    }
+    buf[i] = '\0';
+
+    if(buf[0] != '\x1b' || buf[1] != '[') return -1;
+    if(sscanf(&buf[2],"%d;%d",rows,cols) != 2) return -1;
+    return 0;
+}
 int getWindowSize(int *rows,int *cols){
     struct winsize ws;
 
     // input output control on stdout, terminal input output control get window size, structure
-    if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&ws) == -1 || ws.ws_col == 0)
-        return -1;
+    if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&ws) == -1 || ws.ws_col == 0){
+        if(write(STDOUT_FILENO,"\x1b[999C\x1b[999B",12) != 12) return -1; // C command moves cursor to right, B moves to bottom
+        return getCursorPosition(rows,cols);
+    }
     else{
         *cols = ws.ws_col;
         *rows = ws.ws_row;
@@ -73,7 +94,10 @@ void editorRefreshScreen(){
 void editorDrawRows(){
     int y;
     for(y = 0;y<E.screenrows;y++){
-        write(STDOUT_FILENO,"~\r\n",3);
+        write(STDOUT_FILENO,"~",1);
+        if(y < E.screenrows - 1){
+            write(STDOUT_FILENO,"\r\n",2);
+        }
     }
 }
 
