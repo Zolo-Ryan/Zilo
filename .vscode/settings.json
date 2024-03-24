@@ -3,6 +3,7 @@
         "unistd.h": "c",
         "termios.h": "c",
         "errno.h": "c",
-        "features.h": "c"
+        "features.h": "c",
+        "ioctl.h": "c"
     }
 }
