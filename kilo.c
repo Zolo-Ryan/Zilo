@@ -1,10 +1,11 @@
 /* includes */
 #include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 #include<unistd.h>
 #include<errno.h>
 #include<termios.h>
 #include<ctype.h>
-#include<stdlib.h>
 #include<sys/ioctl.h>
 
 /* defines */
@@ -18,6 +19,24 @@ struct editorConfig{
 };
 struct editorConfig E;
 
+/* append buffer */
+#define ABUF_INIT {NULL,0}
+struct abuf{
+    char *b;
+    int len;
+};
+void abAppend(struct abuf *ab,const char *s,int len){
+    char *new = realloc(ab->b,ab->len + len);
+
+    if(new == NULL) return;
+    memcpy(&new[ab->len],s,len);
+    ab->b = new;
+    ab->len += len;
+}
+void abFree(struct abuf *ab){
+    free(ab->b);
+}
+
 /* terminal */
 void enableRawMode(void); // enabling raw mode
 void disableRawMode(void); //disabling raw mode after program is exited;
@@ -28,7 +47,7 @@ int getCursorPosition(int*,int*);
 
 /* output */
 void editorRefreshScreen(void); // to refresh the screen initially
-void editorDrawRows(void); // to draw tilde on the side of screen just like vim does
+void editorDrawRows(struct abuf *ab); // to draw tilde on the side of screen just like vim does
 
 /* input */
 void editorProcessKeypress(void); // waits for a keypress and then handles it
@@ -86,17 +105,21 @@ int getWindowSize(int *rows,int *cols){
 }
 
 void editorRefreshScreen(){
-    write(STDOUT_FILENO,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
-    write(STDOUT_FILENO,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
-    editorDrawRows();
-    write(STDOUT_FILENO,"\x1b[H",3);
+    struct abuf ab = ABUF_INIT;
+    abAppend(&ab,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
+    abAppend(&ab,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
+    editorDrawRows(&ab);
+    abAppend(&ab,"\x1b[H",3);
+
+    write(STDOUT_FILENO,ab.b,ab.len);
+    abFree(&ab);
 }
-void editorDrawRows(){
+void editorDrawRows(struct abuf *ab){
     int y;
     for(y = 0;y<E.screenrows;y++){
-        write(STDOUT_FILENO,"~",1);
+        abAppend(ab,"~",1);
         if(y < E.screenrows - 1){
-            write(STDOUT_FILENO,"\r\n",2);
+            abAppend(ab,"\r\n",2);
         }
     }
 }
