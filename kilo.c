@@ -9,6 +9,7 @@
 #include<sys/ioctl.h>
 
 /* defines */
+#define KILO_VERSION "0.0.1"
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 /* data */
@@ -106,10 +107,12 @@ int getWindowSize(int *rows,int *cols){
 
 void editorRefreshScreen(){
     struct abuf ab = ABUF_INIT;
-    abAppend(&ab,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
+    abAppend(&ab,"\x1b[?25l",6);
+    // abAppend(&ab,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
     abAppend(&ab,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
     editorDrawRows(&ab);
     abAppend(&ab,"\x1b[H",3);
+    abAppend(&ab,"\x1b[?25h",6);
 
     write(STDOUT_FILENO,ab.b,ab.len);
     abFree(&ab);
@@ -117,7 +120,22 @@ void editorRefreshScreen(){
 void editorDrawRows(struct abuf *ab){
     int y;
     for(y = 0;y<E.screenrows;y++){
-        abAppend(ab,"~",1);
+        if(y == E.screenrows / 3){
+            char welcome[80];
+            int welcomelen = snprintf(welcome,sizeof(welcome),"Kilo editor -- version %s",KILO_VERSION);
+
+            if(welcomelen > E.screencols) welcomelen = E.screencols;
+            int padding = (E.screencols - welcomelen) / 2;
+            if(padding){
+                abAppend(ab,"~",1);
+                padding--;
+            }
+            while(padding--) abAppend(ab," ",1);
+            abAppend(ab,welcome,welcomelen);
+        }
+        else
+            abAppend(ab,"~",1);
+        abAppend(ab,"\x1b[K",3); // K (erase in line). erases part of current line.2 for whole, 1 for left of cursor, 0 (default) for right
         if(y < E.screenrows - 1){
             abAppend(ab,"\r\n",2);
         }
