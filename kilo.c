@@ -15,7 +15,12 @@ enum editorKey{
     ARROW_LEFT = 1000,
     ARROW_RIGHT,
     ARROW_UP,
-    ARROW_DOWN
+    ARROW_DOWN,
+    DEL_KEY,
+    HOME_KEY,
+    END_KEY,
+    PAGE_UP,
+    PAGE_DOWN
 };
 
 /* data */
@@ -139,6 +144,23 @@ void editorProcessKeypress(){
             exit(EXIT_SUCCESS);
             break;
         
+        // can be implemented as page up,down
+        case HOME_KEY:
+            E.cx = 0;
+            break;
+        case END_KEY:
+            E.cx = E.screencols - 1;
+            break;
+
+        // can be implemented as key home,end
+        case PAGE_UP:
+        case PAGE_DOWN:
+            {
+                int times = E.screenrows; // can't declare variables directly inside case blocks
+                while(times--) editorMoveCursor(c == PAGE_UP ? ARROW_UP: ARROW_DOWN);
+            }
+            break;
+
         case ARROW_UP:
         case ARROW_DOWN:
         case ARROW_LEFT:
@@ -176,6 +198,10 @@ int editorReadKey(){
         if(nread == -1 && errno != EAGAIN) die("read");
     }
 
+    /** escape sequences **/
+    // ARROW UP,DOWN,RIGHT,BOTTOM => esc[A,esc[B,esc[C,esc[D
+    // PAGE UP,DOWN => esc[5~,esc[6~
+    // KEY HOME,END => (esc[1~,esc[7~,esc[H,escOH),(esc[4~,esc[8~,esc[F,escOF)
     if(c == '\x1b'){
         char seq[3];
         
@@ -183,11 +209,33 @@ int editorReadKey(){
         if(read(STDIN_FILENO,&seq[1],1) != 1) return '\x1b'; // => some other escape seq was pressed but we just return escape
 
         if(seq[0] == '['){
+            if(seq[1] >= '0' && seq[1] <= '9'){
+                if(read(STDIN_FILENO,&seq[2],1) != 1) return '\x1b'; // => <esc>[\d? type form
+                if(seq[2] == '~'){
+                    switch(seq[1]){
+                        case '1': return HOME_KEY;
+                        case '3': return DEL_KEY;
+                        case '4': return END_KEY;
+                        case '5': return PAGE_UP;
+                        case '6': return PAGE_DOWN;
+                        case '7': return HOME_KEY;
+                        case '8': return END_KEY;
+                    }
+                }
+            }else{
+                switch(seq[1]){
+                    case 'A': return ARROW_UP;
+                    case 'B': return ARROW_DOWN;
+                    case 'C': return ARROW_RIGHT;
+                    case 'D': return ARROW_LEFT;
+                    case 'F': return END_KEY;
+                    case 'H': return HOME_KEY;
+                }
+            }
+        }else if(seq[0] == 'O'){
             switch(seq[1]){
-                case 'A': return ARROW_UP;
-                case 'B': return ARROW_DOWN;
-                case 'C': return ARROW_RIGHT;
-                case 'D': return ARROW_LEFT;
+                case 'H': return HOME_KEY;
+                case 'F': return END_KEY;
             }
         }
 
