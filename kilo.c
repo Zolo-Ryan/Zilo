@@ -33,8 +33,9 @@ typedef struct erow{
     char *chars;
 }erow;
 struct editorConfig{
-    int cx, cy;
-    int rowoff; // row offset to track what row of file the user is currently scrolled to
+    int cx, cy; // cursor position
+    int rowoff; // row offset to track what row of file the user is currently scrolled to(refers to top)
+    int coloff; // col offset to track col
     int screenrows;
     int screencols;
     int numrows;
@@ -72,6 +73,7 @@ int getCursorPosition(int*,int*);
 /* output */
 void editorRefreshScreen(void); // to refresh the screen initially
 void editorDrawRows(struct abuf *ab); // to draw tilde on the side of screen just like vim does
+void editorScroll(void);
 
 /* input */
 void editorProcessKeypress(void); // waits for a keypress and then handles it
@@ -133,9 +135,10 @@ void editorOpen(char *filename){
 
 /** init **/
 void initEditor(){
-    E.cx = 0; // col(horizontal coordinate)
-    E.cy = 0; // row(vertical coordinate)
+    E.cx = 0; // col(horizontal coordinate in file)
+    E.cy = 0; // row(vertical coordinate in file)
     E.rowoff = 0;
+    E.coloff = 0;
     E.numrows = 0;
     E.row = NULL;
 
@@ -144,6 +147,8 @@ void initEditor(){
 
 /** output **/
 void editorRefreshScreen(){
+    editorScroll();
+
     struct abuf ab = ABUF_INIT;
     abAppend(&ab,"\x1b[?25l",6); // hides the cursor
     // abAppend(&ab,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
@@ -152,7 +157,7 @@ void editorRefreshScreen(){
     editorDrawRows(&ab);
     
     char buf[32];
-    snprintf(buf,sizeof(buf),"\x1b[%d;%dH",E.cy+1,E.cx+1); // moves the cursor to its correct location
+    snprintf(buf,sizeof(buf),"\x1b[%d;%dH",(E.cy - E.rowoff)+1,(E.cx - E.coloff)+1); // moves the cursor to its correct location
     abAppend(&ab,buf,strlen(buf));
     
     abAppend(&ab,"\x1b[?25h",6); // makes the cursor visible
@@ -163,7 +168,8 @@ void editorRefreshScreen(){
 void editorDrawRows(struct abuf *ab){
     int y;
     for(y = 0;y<E.screenrows;y++){
-        if(y >= E.numrows){
+        int filerow = y + E.rowoff;
+        if(filerow >= E.numrows){
             // draw welcome string if file not opened
             if(E.numrows == 0 && y == E.screenrows / 3){
                 char welcome[80];
@@ -182,14 +188,29 @@ void editorDrawRows(struct abuf *ab){
                 abAppend(ab,"~",1);
             }
         }else{
-            int len = E.row[y].size;
+            int len = E.row[filerow].size - E.coloff;
+            if(len < 0) len = 0;
             if(len > E.screencols) len = E.screencols;
-            abAppend(ab,E.row[y].chars,len);
+            abAppend(ab,&E.row[filerow].chars[E.coloff],len);
         }
         abAppend(ab,"\x1b[K",3); // K (erase in line). erases part of current line.2 for whole, 1 for left of cursor, 0 (default) for right
         if(y < E.screenrows - 1){
             abAppend(ab,"\r\n",2);
         }
+    }
+}
+void editorScroll(){
+    if(E.cy < E.rowoff){ // for cursor going up
+        E.rowoff = E.cy;
+    }
+    if(E.cy >= E.rowoff + E.screenrows){ // for cursor going down
+        E.rowoff = E.cy - E.screenrows + 1;
+    }
+    if(E.cx < E.coloff){ // for cursor going left
+        E.coloff = E.cx;
+    }
+    if(E.cx >= E.coloff + E.screencols){ // for cursor going right
+        E.coloff = E.cx - E.screencols + 1;
     }
 }
 
@@ -204,7 +225,6 @@ void editorProcessKeypress(){
             exit(EXIT_SUCCESS);
             break;
         
-        // can be implemented as page up,down
         case HOME_KEY:
             E.cx = 0;
             break;
@@ -212,7 +232,6 @@ void editorProcessKeypress(){
             E.cx = E.screencols - 1;
             break;
 
-        // can be implemented as key home,end
         case PAGE_UP:
         case PAGE_DOWN:
             {
@@ -236,15 +255,14 @@ void editorMoveCursor(int key){
                 E.cx--;
             break;
         case ARROW_RIGHT:
-            if(E.cx < E.screencols - 1)
-                E.cx++;
+            E.cx++;
             break;
         case ARROW_UP:
             if(E.cy > 0)
                 E.cy--;
             break;
         case ARROW_DOWN:
-            if(E.cy < E.screenrows - 1)
+            if(E.cy < E.numrows)
                 E.cy++;
             break;
     }
