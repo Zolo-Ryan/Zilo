@@ -1,4 +1,8 @@
 /* includes */
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE
+// the above defines must come before any includes
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -24,10 +28,17 @@ enum editorKey{
 };
 
 /* data */
+typedef struct erow{
+    int size;
+    char *chars;
+}erow;
 struct editorConfig{
     int cx, cy;
+    int rowoff; // row offset to track what row of file the user is currently scrolled to
     int screenrows;
     int screencols;
+    int numrows;
+    erow *row;
     struct termios orig_termios;
 };
 struct editorConfig E;
@@ -69,10 +80,19 @@ void editorMoveCursor(int);
 /* init */
 void initEditor(void);
 
-int main()
+/* file i/o */
+void editorOpen(char*);
+
+/* row operations */
+void editorAppendRow(char*,size_t);
+
+int main(int argc, char *argv[])
 {
     enableRawMode();
     initEditor();
+    if(argc >= 2){
+        editorOpen(argv[1]);
+    }
 
     while (1) {
         editorRefreshScreen();
@@ -81,10 +101,43 @@ int main()
     return 0;
 }
 
+/** row operations **/
+void editorAppendRow(char *s,size_t len){
+    E.row = realloc(E.row,sizeof(erow)*(E.numrows+1));
+
+    int at = E.numrows;
+    E.row[at].size = len;
+    E.row[at].chars = malloc(len+1);
+    memcpy(E.row[at].chars,s,len);
+    E.row[at].chars[len] = '\0';
+    E.numrows++;
+}
+
+/** file i/o **/
+void editorOpen(char *filename){
+    FILE *fp = fopen(filename,"r");
+    if(!fp) die("fopen");
+
+    char *line = NULL;
+    size_t linecap = 0;
+    ssize_t linelen;
+    // buffer, buffer len, ptr. buffer is allocated memory automatically and len is updated as well
+    while((linelen = getline(&line,&linecap,fp)) != -1){ // -1 at EOF
+        while(linelen > 0 && (line[linelen-1] == '\n' || line[linelen-1] == '\r'))
+            linelen--; // truncating \r\n from back of string
+        editorAppendRow(line,linelen);
+    }
+    free(line);
+    fclose(fp);
+}
+
 /** init **/
 void initEditor(){
     E.cx = 0; // col(horizontal coordinate)
     E.cy = 0; // row(vertical coordinate)
+    E.rowoff = 0;
+    E.numrows = 0;
+    E.row = NULL;
 
     if(getWindowSize(&E.screenrows,&E.screencols) == -1) die("getWindowSize");
 }
@@ -110,21 +163,28 @@ void editorRefreshScreen(){
 void editorDrawRows(struct abuf *ab){
     int y;
     for(y = 0;y<E.screenrows;y++){
-        if(y == E.screenrows / 3){
-            char welcome[80];
-            int welcomelen = snprintf(welcome,sizeof(welcome),"Kilo editor -- version %s",KILO_VERSION);
+        if(y >= E.numrows){
+            // draw welcome string if file not opened
+            if(E.numrows == 0 && y == E.screenrows / 3){
+                char welcome[80];
+                int welcomelen = snprintf(welcome,sizeof(welcome),"Kilo editor -- version %s",KILO_VERSION);
 
-            if(welcomelen > E.screencols) welcomelen = E.screencols;
-            int padding = (E.screencols - welcomelen) / 2;
-            if(padding){
-                abAppend(ab,"~",1);
-                padding--;
+                if(welcomelen > E.screencols) welcomelen = E.screencols;
+                int padding = (E.screencols - welcomelen) / 2;
+                if(padding){
+                    abAppend(ab,"~",1);
+                    padding--;
+                }
+                while(padding--) abAppend(ab," ",1);
+                abAppend(ab,welcome,welcomelen);
             }
-            while(padding--) abAppend(ab," ",1);
-            abAppend(ab,welcome,welcomelen);
-        }
-        else{
-            abAppend(ab,"~",1);
+            else{
+                abAppend(ab,"~",1);
+            }
+        }else{
+            int len = E.row[y].size;
+            if(len > E.screencols) len = E.screencols;
+            abAppend(ab,E.row[y].chars,len);
         }
         abAppend(ab,"\x1b[K",3); // K (erase in line). erases part of current line.2 for whole, 1 for left of cursor, 0 (default) for right
         if(y < E.screenrows - 1){
@@ -244,7 +304,7 @@ int editorReadKey(){
     else
         return c;
 }
-void enableRawMode(void){
+void enableRawMode(){
     if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) die("tcgetattr");
     atexit(disableRawMode);
 
