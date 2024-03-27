@@ -10,6 +10,8 @@
 #include<errno.h>
 #include<termios.h>
 #include<ctype.h>
+#include<stdarg.h>
+#include<time.h>
 #include<sys/ioctl.h>
 
 /* defines */
@@ -44,6 +46,9 @@ struct editorConfig{
     int screencols;
     int numrows;
     erow *row;
+    char *filename;
+    char statusmsg[80];
+    time_t statusmsg_time;
     struct termios orig_termios;
 };
 struct editorConfig E;
@@ -78,6 +83,9 @@ int getCursorPosition(int*,int*);
 void editorRefreshScreen(void); // to refresh the screen initially
 void editorDrawRows(struct abuf *ab); // to draw tilde on the side of screen just like vim does
 void editorScroll(void);
+void editorDrawStatusBar(struct abuf*);
+void editorSetStatusMessage(const char*,...);
+void editorDrawMessageBar(struct abuf*);
 
 /* input */
 void editorProcessKeypress(void); // waits for a keypress and then handles it
@@ -101,6 +109,8 @@ int main(int argc, char *argv[])
     if(argc >= 2){
         editorOpen(argv[1]);
     }
+
+    editorSetStatusMessage("HELP: Ctrl-Q = quit");
 
     while (1) {
         editorRefreshScreen();
@@ -159,6 +169,9 @@ void editorAppendRow(char *s,size_t len){
 
 /** file i/o **/
 void editorOpen(char *filename){
+    free(E.filename);
+    E.filename = strdup(filename); // makes a copy of string, allocating req memory and assuming you will free that memory
+
     FILE *fp = fopen(filename,"r");
     if(!fp) die("fopen");
 
@@ -184,11 +197,51 @@ void initEditor(){
     E.coloff = 0;
     E.numrows = 0;
     E.row = NULL;
+    E.filename = NULL;
+    E.statusmsg[0] = '\0';
+    E.statusmsg_time = 0;
 
     if(getWindowSize(&E.screenrows,&E.screencols) == -1) die("getWindowSize");
+    E.screenrows -= 2;
 }
 
 /** output **/
+void editorDrawMessageBar(struct abuf *ab){
+    abAppend(ab,"\x1b[K",3);
+    int msglen = strlen(E.statusmsg);
+    if(msglen > E.screencols) msglen = E.screencols;
+    if(msglen && time(NULL) - E.statusmsg_time < 5)
+        abAppend(ab,E.statusmsg,msglen);
+}
+void editorSetStatusMessage(const char *fmt,...){
+    va_list ap;
+    va_start(ap,fmt); // requires the last fixed parameter to get the address
+    vsnprintf(E.statusmsg,sizeof(E.statusmsg),fmt,ap); // snprintf but uses ap (variable argument list)
+    va_end(ap);
+    E.statusmsg_time = time(NULL);
+}
+void editorDrawStatusBar(struct abuf* ab){
+    abAppend(ab,"\x1b[7m",4); // inverts the color, \x1b[m for normal formatting
+    
+    char status[80],rstatus[80];
+    int len = snprintf(status,sizeof(status),"%.20s - %d lines",E.filename ? E.filename: "[No Name]", E.numrows);
+    int rlen = snprintf(rstatus,sizeof(rstatus),"%d/%d",E.cy+1,E.numrows);
+
+    if(len > E.screencols) len = E.screencols;
+    abAppend(ab,status,len);
+
+    while(len < E.screencols){
+        if(E.screencols - len == rlen){
+            abAppend(ab,rstatus,rlen);
+            break;
+        }else{
+            abAppend(ab," ",1);
+            len++;
+        }
+    }
+    abAppend(ab,"\x1b[m",3); // 1 for bold,3 for italic, 4 for underscore, 5 for blink, 8 for invisible, 9 for strike
+    abAppend(ab,"\r\n",2);
+}
 void editorRefreshScreen(){
     editorScroll();
 
@@ -198,6 +251,8 @@ void editorRefreshScreen(){
     abAppend(&ab,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
     
     editorDrawRows(&ab);
+    editorDrawStatusBar(&ab);
+    editorDrawMessageBar(&ab);
     
     char buf[32];
     snprintf(buf,sizeof(buf),"\x1b[%d;%dH",(E.cy - E.rowoff)+1,(E.rx - E.coloff)+1); // moves the cursor to its correct location
@@ -237,9 +292,7 @@ void editorDrawRows(struct abuf *ab){
             abAppend(ab,&E.row[filerow].render[E.coloff],len);
         }
         abAppend(ab,"\x1b[K",3); // K (erase in line). erases part of current line.2 for whole, 1 for left of cursor, 0 (default) for right
-        if(y < E.screenrows - 1){
-            abAppend(ab,"\r\n",2);
-        }
+        abAppend(ab,"\r\n",2);
     }
 }
 void editorScroll(){

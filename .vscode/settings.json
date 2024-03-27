@@ -4,6 +4,7 @@
         "termios.h": "c",
         "errno.h": "c",
         "features.h": "c",
-        "ioctl.h": "c"
+        "ioctl.h": "c",
+        "stdarg.h": "c"
     }
 }
