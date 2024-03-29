@@ -4,6 +4,7 @@
 #define _GNU_SOURCE
 // the above defines must come before any includes
 #include<stdio.h>
+#include<fcntl.h>
 #include<stdlib.h>
 #include<string.h>
 #include<unistd.h>
@@ -19,6 +20,7 @@
 #define KILO_TAB_STOP 8
 #define CTRL_KEY(k) ((k) & 0x1f)
 enum editorKey{
+    BACKSPACE = 127,
     ARROW_LEFT = 1000,
     ARROW_RIGHT,
     ARROW_UP,
@@ -96,6 +98,8 @@ void initEditor(void);
 
 /* file i/o */
 void editorOpen(char*);
+char *editorRowsToString(int*);
+void editorSave(void);
 
 /* row operations */
 void editorAppendRow(char*,size_t);
@@ -114,7 +118,7 @@ int main(int argc, char *argv[])
         editorOpen(argv[1]);
     }
 
-    editorSetStatusMessage("HELP: Ctrl-Q = quit");
+    editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit");
 
     while (1) {
         editorRefreshScreen();
@@ -189,6 +193,43 @@ void editorAppendRow(char *s,size_t len){
 }
 
 /** file i/o **/
+void editorSave(void){
+    if(E.filename == NULL) return;
+
+    int len;
+    char *buf = editorRowsToString(&len);
+    int fd = open(E.filename,O_RDWR | O_CREAT, 0644); // O_TRUNC truncates the file completely, making it an empty file
+    if(fd != -1){
+        if(ftruncate(fd,len) != -1){
+            if(write(fd,buf,len) == len){
+                close(fd);
+                free(buf);
+                editorSetStatusMessage("%d bytes written to disk",len);
+                return;
+            }
+        }
+        close(fd);
+    }
+    free(buf);
+    editorSetStatusMessage("Can't Save! I/O error: %s",strerror(errno));
+    // advanced editors will write to a new temporary file and then rename that file to the actual file the user wants to overwrite
+}
+char *editorRowsToString(int *buflen){
+    int totlen = 0;
+    int j;
+    for(j = 0;j<E.numrows;j++)
+        totlen += E.row[j].size + 1;
+    *buflen = totlen;
+    char *buf = malloc(totlen);
+    char *p = buf;
+    for(j = 0;j<E.numrows;j++){
+        memcpy(p,E.row[j].chars,E.row[j].size);
+        p += E.row[j].size;
+        *p = '\n';
+        p++;
+    }
+    return buf;
+}
 void editorOpen(char *filename){
     free(E.filename);
     E.filename = strdup(filename); // makes a copy of string, allocating req memory and assuming you will free that memory
@@ -341,10 +382,17 @@ void editorProcessKeypress(){
     int c = editorReadKey();
 
     switch(c){
+        case '\r':
+            // todo
+            break;
         case CTRL_KEY('q'):
             write(STDOUT_FILENO,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
             write(STDOUT_FILENO,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
             exit(EXIT_SUCCESS);
+            break;
+        
+        case CTRL_KEY('s'):
+            editorSave();
             break;
         
         case HOME_KEY:
@@ -353,6 +401,12 @@ void editorProcessKeypress(){
         case END_KEY:
             if(E.cy < E.numrows)
                 E.cx = E.row[E.cy].size;
+            break;
+
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY:
+            // todo
             break;
 
         case PAGE_UP:
@@ -375,6 +429,10 @@ void editorProcessKeypress(){
         case ARROW_LEFT:
         case ARROW_RIGHT:
             editorMoveCursor(c);
+            break;
+        
+        case CTRL_KEY('l'): // for screen refresh on terminal
+        case '\x1b':
             break;
         
         default:
