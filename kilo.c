@@ -101,6 +101,10 @@ void editorOpen(char*);
 void editorAppendRow(char*,size_t);
 void editorUpdateRow(erow*); // uses chars string to fill the contents in render string
 int editorRowCxToRx(erow*,int); // converts cx to rx
+void editorRowInsertChar(erow*,int,int);
+
+/* editor operations */
+void editorInsertChar(int);
 
 int main(int argc, char *argv[])
 {
@@ -119,7 +123,24 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/** editor operations **/
+void editorInsertChar(int c){
+    if(E.cy == E.numrows){
+        editorAppendRow("",0); // create a new empty row
+    }
+    editorRowInsertChar(&E.row[E.cy],E.cx,c);
+    E.cx++;
+}
+
 /** row operations **/
+void editorRowInsertChar(erow *row,int at,int c){
+    if(at < 0 || at > row->size) at = row->size;
+    row->chars = realloc(row->chars,row->size + 2); // shyd 1 hona chaiye
+    memmove(&row->chars[at+1],&row->chars[at],row->size - at + 1); // safe to use instead of memcpy when dest and src arrays overlap
+    row->size++;
+    row->chars[at] = c;
+    editorUpdateRow(row); // so that render and rsize fields get updated
+}
 int editorRowCxToRx(erow *row,int cx){
     int rx = 0;
     int j;
@@ -354,6 +375,10 @@ void editorProcessKeypress(){
         case ARROW_LEFT:
         case ARROW_RIGHT:
             editorMoveCursor(c);
+            break;
+        
+        default:
+            editorInsertChar(c);
             break;
     }
 }
