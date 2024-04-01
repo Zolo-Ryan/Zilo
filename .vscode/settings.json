@@ -5,6 +5,14 @@
         "errno.h": "c",
         "features.h": "c",
         "ioctl.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "terminal.h": "c",
+        "main.h": "c",
+        "highlight.h": "c",
+        "fileio.h": "c",
+        "output.h": "c",
+        "row_operations.h": "c",
+        "init.h": "c",
+        "editor_operations.h": "c"
     }
 }
