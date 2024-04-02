@@ -1,6 +1,7 @@
 #include<editor_operations.h>
 #include<row_operations.h>
 #include<init.h>
+#include<input.h>
 
 void editorInsertNewline(){
     if(E.cx == 0){
@@ -37,4 +38,20 @@ void editorInsertChar(int c){
     }
     editorRowInsertChar(&E.row[E.cy],E.cx,c);
     E.cx++;
+}
+void goToLineCallback(char *query,int key){
+    int cy;
+    sscanf(query,"%d",&cy);
+    if(cy <= E.numrows+1 && cy >= 1)
+        E.cy = cy - 1;
+}
+void goToLine(){
+    int saved_cy = E.cy;
+
+    char *query = editorPrompt("Enter line number: %s",goToLineCallback);
+    if(query){    
+        free(query);
+    }else {
+        E.cy = saved_cy;
+    }
 }

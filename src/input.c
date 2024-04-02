@@ -77,6 +77,10 @@ void editorProcessKeypress(){
         case CTRL_KEY('f'):
             editorFind();
             break;
+        
+        case CTRL_KEY('g'):
+            goToLine();
+            break;
 
         case BACKSPACE:
         case CTRL_KEY('h'):
