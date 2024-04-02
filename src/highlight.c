@@ -1,5 +1,6 @@
 #include<init.h>
 #include<highlight.h>
+#include<utils.h>
 
 void editorSelectSyntaxHighlight(){
     E.syntax = NULL;
@@ -24,9 +25,6 @@ void editorSelectSyntaxHighlight(){
             i++;
         }
     }
-}
-int is_seperator(int c){
-    return isspace(c) || c == '\0' || strchr(",.()+-/*=~%<>[];",c) != NULL; // strchr looks for first occurence of c in str and returns the pointer to it
 }
 int editorSyntaxToColor(int hl){
     switch(hl){

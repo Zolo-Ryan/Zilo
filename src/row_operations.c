@@ -1,5 +1,6 @@
 #include<row_operations.h>
 #include<highlight.h>
+#include<utils.h>
 
 int editorRowRxToCx(erow *row, int rx){
     int cur_rx = 0;
@@ -42,9 +43,19 @@ void editorRowDelChar(erow *row,int at){
 }
 void editorRowInsertChar(erow *row,int at,int c){
     if(at < 0 || at > row->size) at = row->size;
-    row->chars = realloc(row->chars,row->size + 2); // shyd 1 hona chaiye
-    memmove(&row->chars[at+1],&row->chars[at],row->size - at + 1); // safe to use instead of memcpy when dest and src arrays overlap
-    row->size++;
+
+    // added support for auto bracket closing
+    int open_c = is_open_character(c);
+    if(open_c != -1){
+        row->chars = realloc(row->chars,row->size+3);
+        memmove(&row->chars[at+2],&row->chars[at],row->size - at + 2);
+        row->size += 2;
+        row->chars[at+1] = open_c;
+    }else {
+        row->chars = realloc(row->chars,row->size + 2); // shyd 1 hona chaiye
+        memmove(&row->chars[at+1],&row->chars[at],row->size - at + 1); // safe to use instead of memcpy when dest and src arrays overlap
+        row->size++;
+    }
     row->chars[at] = c;
     editorUpdateRow(row); // so that render and rsize fields get updated
     E.dirty++;

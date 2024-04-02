@@ -13,6 +13,8 @@
         "output.h": "c",
         "row_operations.h": "c",
         "init.h": "c",
-        "editor_operations.h": "c"
-    }
+        "editor_operations.h": "c",
+        "utils.h": "c"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
