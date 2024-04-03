@@ -35,6 +35,7 @@ int editorSyntaxToColor(int hl){
         case HL_STRING: return 35; // magenta
         case HL_NUMBER: return 31; // foreground red
         case HL_MATCH: return 34; // blue
+        case HL_SIDEBAR: return 40; // magenta back
         default: return 37; // foreground white
     }
 }

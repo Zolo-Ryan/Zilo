@@ -155,8 +155,14 @@ void editorDrawSidebar(struct abuf *ab,int num){
     char buf[16];
     int padding = E.sidebar_width - 1 - digits(num+1); // -1 for right padding
     int nlen = snprintf(buf,sizeof(buf),"%d",num+1);
+    
+    char cbuf[16];
+    int clen = snprintf(cbuf,sizeof(cbuf),"\x1b[%dm",editorSyntaxToColor(HL_SIDEBAR));
+    abAppend(ab,cbuf,clen);
+
     while(padding-- > 0)
         abAppend(ab," ",1);
     abAppend(ab,buf,nlen);
     abAppend(ab," ",1);
+    abAppend(ab,"\x1b[49m",5);
 }

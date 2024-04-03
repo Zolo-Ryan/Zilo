@@ -38,7 +38,8 @@
         HL_KEYWORD2,
         HL_STRING,
         HL_NUMBER,
-        HL_MATCH
+        HL_MATCH,
+        HL_SIDEBAR
     };
 
     /* data */
