@@ -2,6 +2,7 @@
 #include<highlight.h>
 #include<row_operations.h>
 #include<buffer.h>
+#include<utils.h>
 
 void editorDrawMessageBar(struct abuf *ab){
     abAppend(ab,"\x1b[K",3);
@@ -42,6 +43,8 @@ void editorDrawStatusBar(struct abuf* ab){
 void editorRefreshScreen(){
     editorScroll();
 
+    E.sidebar_width = digits(E.numrows) + 2;
+
     struct abuf ab = ABUF_INIT;
     abAppend(&ab,"\x1b[?25l",6); // hides the cursor
     // abAppend(&ab,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
@@ -52,7 +55,7 @@ void editorRefreshScreen(){
     editorDrawMessageBar(&ab);
     
     char buf[32];
-    snprintf(buf,sizeof(buf),"\x1b[%d;%dH",(E.cy - E.rowoff)+1,(E.rx - E.coloff)+1); // moves the cursor to its correct location
+    snprintf(buf,sizeof(buf),"\x1b[%d;%dH",(E.cy - E.rowoff)+1,(E.rx - E.coloff + E.sidebar_width)+1); // moves the cursor to its correct location
     abAppend(&ab,buf,strlen(buf));
     
     abAppend(&ab,"\x1b[?25h",6); // makes the cursor visible
@@ -64,6 +67,7 @@ void editorDrawRows(struct abuf *ab){
     int y;
     for(y = 0;y<E.screenrows;y++){
         int filerow = y + E.rowoff;
+        editorDrawSidebar(ab,filerow);
         if(filerow >= E.numrows){
             // draw welcome string if file not opened
             if(E.numrows == 0 && y == E.screenrows / 3){
@@ -85,7 +89,7 @@ void editorDrawRows(struct abuf *ab){
         }else{
             int len = E.row[filerow].rsize - E.coloff;
             if(len < 0) len = 0;
-            if(len > E.screencols) len = E.screencols;
+            if(len > E.screencols - E.sidebar_width) len = E.screencols - E.sidebar_width;
             
             char *c = &E.row[filerow].render[E.coloff];
             unsigned char *hl = &E.row[filerow].hl[E.coloff];
@@ -142,7 +146,17 @@ void editorScroll(){
     if(E.rx < E.coloff){ // for cursor going left
         E.coloff = E.rx;
     }
-    if(E.rx >= E.coloff + E.screencols){ // for cursor going right
-        E.coloff = E.rx - E.screencols + 1;
+    if(E.rx >= E.coloff + E.screencols - E.sidebar_width){ // for cursor going right
+        E.coloff = E.rx - E.screencols + 1 + E.sidebar_width;
     }
+}
+void editorDrawSidebar(struct abuf *ab,int num){
+    if(num >= E.numrows) return;
+    char buf[16];
+    int padding = E.sidebar_width - 1 - digits(num+1); // -1 for right padding
+    int nlen = snprintf(buf,sizeof(buf),"%d",num+1);
+    while(padding-- > 0)
+        abAppend(ab," ",1);
+    abAppend(ab,buf,nlen);
+    abAppend(ab," ",1);
 }

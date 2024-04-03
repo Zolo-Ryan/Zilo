@@ -68,6 +68,7 @@
         int screenrows;
         int screencols;
         int numrows;
+        int sidebar_width; // sidebar width
         erow *row;
         int dirty; // to track if any changes are made to file
         char *filename;

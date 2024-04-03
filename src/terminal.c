@@ -81,6 +81,7 @@ void die(const char* message){
 }
 int getCursorPosition(int *rows,int *cols){
     char buf[32];
+    E.rx -= E.sidebar_width;
     unsigned int i = 0;
 
     if(write(STDOUT_FILENO,"\x1b[6n",4) != 4) return -1; // gives the cursor position which we will read from the stdin

@@ -9,4 +9,5 @@
     void editorDrawStatusBar(struct abuf*);
     void editorSetStatusMessage(const char*,...);
     void editorDrawMessageBar(struct abuf*);
+    void editorDrawSidebar(struct abuf*,int);
 #endif
