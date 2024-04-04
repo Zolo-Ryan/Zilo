@@ -84,10 +84,13 @@ void editorProcessKeypress(){
             break;
 
         case CTRL_KEY('c'):
-            copyToClipboard(E.cy);
+            copyToClipboard();
+            break;
+        case CTRL_KEY('x'):
+            cutToClipboard();
             break;
         case CTRL_KEY('v'):
-            pasteFromClipboard(E.cy);
+            pasteFromClipboard();
             break;
 
         case BACKSPACE:

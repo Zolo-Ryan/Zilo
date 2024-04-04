@@ -8,6 +8,7 @@
         int len;
     } clip;
     extern clip clipboard;
-    void copyToClipboard(int);
-    void pasteFromClipboard(int);
+    void copyToClipboard(void);
+    void cutToClipboard(void);
+    void pasteFromClipboard(void);
 #endif
