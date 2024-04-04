@@ -11,7 +11,7 @@ void copyToClipboard(){
     clipboard.len = E.row[at].size;
     memcpy(clipboard.str,E.row[at].chars,E.row[at].size);
     clipboard.str[clipboard.len] = '\0';
-    editorSetStatusMessage("Copied to clipboard!");
+    editorSetStatusMessage("Line copied to clipboard!");
 }
 void cutToClipboard(){
     int at = E.cy;

@@ -76,7 +76,7 @@ void editorUpdateRow(erow *row){
     for(j = 0;j< row->size;j++)
         if(row->chars[j] == '\t') tabs++;
     
-    free(row->render);
+    free(row->render); // row->render might be NULL or something. free can handle NULL without crashing but not freeing twice ore more
     row->render = malloc(row->size + tabs*7 + 1);
 
     int idx = 0;
@@ -111,6 +111,7 @@ void editorInsertRow(int at,char *s,size_t len){
     E.row[at].render = NULL;
     E.row[at].hl = NULL;
     E.row[at].hl_open_comment = 0;
+    E.row[at].indent = 0; // indent spaces
     editorUpdateRow(&E.row[at]);
 
     E.numrows++;
