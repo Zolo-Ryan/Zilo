@@ -4,6 +4,7 @@
 #include<terminal.h>
 #include<editor_operations.h>
 #include<finder.h>
+#include<clipboard.h>
 
 char *editorPrompt(char *prompt, void (*callback)(char*,int)){
     size_t bufsize = 128;
@@ -80,6 +81,13 @@ void editorProcessKeypress(){
         
         case CTRL_KEY('g'):
             goToLine();
+            break;
+
+        case CTRL_KEY('c'):
+            copyToClipboard(E.cy);
+            break;
+        case CTRL_KEY('v'):
+            pasteFromClipboard(E.cy);
             break;
 
         case BACKSPACE:

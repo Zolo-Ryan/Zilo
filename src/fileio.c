@@ -6,6 +6,10 @@
 #include<terminal.h>
 
 void editorSave(void){
+    if(E.dirty <= 0){
+        editorSetStatusMessage("Nothing to save");
+        return;
+    }
     if(E.filename == NULL){
         E.filename = editorPrompt("Save as: %s",NULL);
         if(E.filename == NULL){

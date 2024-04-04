@@ -4,6 +4,7 @@
 #include<output.h>
 #include<input.h>
 #include<init.h>
+#include<clipboard.h>
 
 int main(int argc, char *argv[])
 {

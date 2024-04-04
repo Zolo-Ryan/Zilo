@@ -7,9 +7,7 @@
 
 #ifndef FILE_IO_H
 #define FILE_IO_H
-
     void editorOpen(char*);
     char *editorRowsToString(int*);
     void editorSave(void);
-
 #endif
