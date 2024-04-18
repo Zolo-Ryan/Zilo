@@ -1,5 +1,6 @@
 #include<init.h>
 #include<terminal.h>
+#include<zBuffer.h>
 
 char *C_HL_extensions[] = {".c",".h",".cpp",NULL};
 char *C_HL_keywords[] = {"#include","switch","if","while","for","break",
@@ -8,6 +9,7 @@ char *C_HL_keywords[] = {"#include","switch","if","while","for","break",
 struct editorSyntax HLDB[] = {
     {"c",C_HL_extensions,C_HL_keywords,"//","/*","*/",HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
 };
+zBuffer z = {NULL,0,-1};
 
 /* add java here
 

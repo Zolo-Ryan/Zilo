@@ -125,6 +125,7 @@
         "valarray": "c",
         "variant": "c",
         "version": "c",
-        "clipboard.h": "c"
+        "clipboard.h": "c",
+        "zbuffer.h": "c"
     }
 }

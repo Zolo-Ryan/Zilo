@@ -4,6 +4,7 @@
 #include<terminal.h>
 #include<editor_operations.h>
 #include<finder.h>
+#include<zBuffer.h>
 #include<clipboard.h>
 
 char *editorPrompt(char *prompt, void (*callback)(char*,int)){
@@ -126,6 +127,13 @@ void editorProcessKeypress(){
         case '\x1b':
             break;
         
+        case CTRL('t'):
+            switchBuffer(1);
+            break;
+        case CTRL('r'):
+            switchBuffer(-1);
+            break;
+
         default:
             editorInsertChar(c);
             break;
