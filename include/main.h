@@ -18,6 +18,8 @@
     #define CTRL_KEY(k) ((k) & 0x1f)
     #define HL_HIGHLIGHT_NUMBERS (1<<0)
     #define HL_HIGHLIGHT_STRINGS (1<<1)
+    #define MENU_HEIGHT 1
+    #define MENU_FILENAME_WIDTH 10
     enum editorKey{
         BACKSPACE = 127,
         ARROW_LEFT = 1000,
@@ -74,6 +76,7 @@
         int dirty; // to track if any changes are made to file
         char *filename;
         char statusmsg[80];
+        char *menumsg;
         time_t statusmsg_time;
         struct editorSyntax *syntax;
         struct termios orig_termios;

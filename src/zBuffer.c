@@ -4,6 +4,7 @@
 #include<fileio.h>
 #include<string.h>
 
+/* switch current file buffer */
 void switchBuffer(int val){
     if(z.size <= 0) return;
     z.openBuffers[z.currentPointer] = E; // save current buffer state
@@ -29,7 +30,7 @@ void initZBuffer(int n,char **args){
     }
 }
 
-/* to open a new file*/
+/* opens a file */
 void addBuffer(char *filename){
     int current = z.currentPointer;
     z.openBuffers[current] = E; // saving current state of buffer

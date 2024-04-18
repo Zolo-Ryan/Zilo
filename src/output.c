@@ -50,12 +50,13 @@ void editorRefreshScreen(){
     // abAppend(&ab,"\x1b[2J",4); // \x1b is escape(27). escape sequence start with '<esc>[', here we are running J command and giving a parameter of '2', hence 4 bits
     abAppend(&ab,"\x1b[H",3); // takes two arguments, 80x24 h toh <esc>[12;40H for center
     
+    editorDrawMenuBar(&ab);
     editorDrawRows(&ab);
     editorDrawStatusBar(&ab);
     editorDrawMessageBar(&ab);
     
     char buf[32];
-    snprintf(buf,sizeof(buf),"\x1b[%d;%dH",(E.cy - E.rowoff)+1,(E.rx - E.coloff + E.sidebar_width)+1); // moves the cursor to its correct location
+    snprintf(buf,sizeof(buf),"\x1b[%d;%dH",(E.cy - E.rowoff)+ 1 + MENU_HEIGHT,(E.rx - E.coloff + E.sidebar_width)+1); // moves the cursor to its correct location
     abAppend(&ab,buf,strlen(buf));
     
     abAppend(&ab,"\x1b[?25h",6); // makes the cursor visible
@@ -165,4 +166,34 @@ void editorDrawSidebar(struct abuf *ab,int num){
     abAppend(ab,buf,nlen);
     abAppend(ab," ",1);
     abAppend(ab,"\x1b[49m",5);
+}
+void editorDrawMenuBar(struct abuf *ab){
+    if(z.size < 1) return;
+    char buf[200];
+    int i = 0,j = 0;
+    // puts all file name into menu (can't handle files with long names or too many file names)
+    while(i < z.size){
+        if(j+(int)strlen(z.openBuffers[i].filename) >= E.screencols) break;
+        if(i == z.currentPointer){
+            sprintf(&buf[j],"\x1b[m");
+            j += 3;
+        }
+        
+        j += sprintf(&buf[j]," %s ",z.openBuffers[i].filename);
+        
+        if(i == z.currentPointer){
+            sprintf(&buf[j],"\x1b[45m");
+            j += 5;
+        }
+        j += sprintf(&buf[j],"|");
+        i++;
+    }
+    buf[j] = '\0';
+    E.menumsg = buf;
+    abAppend(ab,"\x1b[45m",5);
+    abAppend(ab,E.menumsg,strlen(E.menumsg)+1);
+    while(j++ - 8 < E.screencols) // -8 since +5 and +3 due to color change
+        abAppend(ab," ",1);
+    abAppend(ab,"\r\n",2);
+    abAppend(ab,"\x1b[m",3);
 }

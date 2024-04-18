@@ -28,9 +28,10 @@ void initEditor(){
     E.dirty = 0;
     E.filename = NULL;
     E.statusmsg[0] = '\0';
+    E.menumsg = NULL;
     E.statusmsg_time = 0;
     E.syntax = NULL;
 
     if(getWindowSize(&E.screenrows,&E.screencols) == -1) die("getWindowSize");
-    E.screenrows -= 2;
+    E.screenrows -= 3;
 }
