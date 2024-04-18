@@ -10,4 +10,6 @@
     extern zBuffer z;
     void switchBuffer(int);
     void initZBuffer(int,char**);
+    void addBuffer(char*);
+    void removeBuffer(void);
 #endif

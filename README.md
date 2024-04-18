@@ -10,7 +10,7 @@ ref: https://viewsourcecode.org/snaptoken/kilo/index.html
 - [x] Cut, Copy and paste whole lines
 - [ ] Cut, Copy and paste selected area
 - [x] Goto Line
-- [ ] Open multiple files
+- [x] Open multiple files
 - [ ] Support for java language
 - [ ] Auto indent
 - [ ] Scrolling with touchpad

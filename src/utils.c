@@ -18,3 +18,10 @@ int digits(int a){
     }
     return count;
 }
+
+/* Checks if all files are clean or not*/
+int allClean(zBuffer z){
+    for(int i = 0;i<z.size;i++)
+        if(z.openBuffers[i].dirty) return 0;
+    return 1 && E.dirty == 0 ? 1: 0;
+}

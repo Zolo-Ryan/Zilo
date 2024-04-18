@@ -12,14 +12,11 @@ int main(int argc, char *argv[])
     enableRawMode();
     if(argc >= 2){
         initZBuffer(argc,argv);
+        E = z.openBuffers[z.currentPointer];
     }
-    // initEditor();
-    // if(argc >= 2){
-    //     editorOpen(argv[1]);
-    // }
+    else initEditor();
 
     editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-G = Goto");
-    E = z.openBuffers[z.currentPointer];
     while (1) {
         editorRefreshScreen();
         editorProcessKeypress();

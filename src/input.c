@@ -6,6 +6,7 @@
 #include<finder.h>
 #include<zBuffer.h>
 #include<clipboard.h>
+#include<utils.h>
 
 char *editorPrompt(char *prompt, void (*callback)(char*,int)){
     size_t bufsize = 128;
@@ -54,8 +55,10 @@ void editorProcessKeypress(){
             editorInsertNewline();
             break;
         case CTRL_KEY('q'):
-            if(E.dirty && quit_times > 0){
-                editorSetStatusMessage("WARNING!!! File has unsaved changes. Press Ctrl-Q %d more times to quit.",quit_times);
+            if(allClean(z) == 0 && quit_times > 0){
+                if(E.dirty)
+                    editorSetStatusMessage("WARNING!!! File has unsaved changes. Press Ctrl-Q %d more times to quit.",quit_times);
+                else editorSetStatusMessage("WARNING!!! Some files have unsaved changes. Press Ctrl-Q %d more times to quit",quit_times);
                 quit_times--;
                 return;
             }
@@ -66,6 +69,28 @@ void editorProcessKeypress(){
         
         case CTRL_KEY('s'):
             editorSave();
+            break;
+        case CTRL_KEY('o'):
+            {
+                char *buf = editorPrompt("Enter file to open: %s",NULL);
+                addBuffer(buf);
+                free(buf);
+            };
+            break;
+        case CTRL_KEY('n'):
+            addBuffer(NULL);
+            break;
+        case CTRL_KEY('w'):
+            if(E.dirty && quit_times > 0){
+                editorSetStatusMessage("WARNING!!! File has unsaved changes. Press Ctrl-Q %d more times to quit.",quit_times);
+                quit_times--;
+                return;
+            }
+            removeBuffer();
+            if(z.size >= 1) break;
+            write(STDOUT_FILENO,"\x1b[2J",4);
+            write(STDOUT_FILENO,"\x1b[H",3);
+            exit(EXIT_SUCCESS);
             break;
         
         case HOME_KEY:

@@ -111,7 +111,7 @@ void editorInsertRow(int at,char *s,size_t len){
     E.row[at].render = NULL;
     E.row[at].hl = NULL;
     E.row[at].hl_open_comment = 0;
-    E.row[at].indent = 0; // indent spaces
+    // E.row[at].indent = 0; // indent spaces
     editorUpdateRow(&E.row[at]);
 
     E.numrows++;
