@@ -18,6 +18,12 @@ ref: https://viewsourcecode.org/snaptoken/kilo/index.html
 - [ ] Scrolling with touchpad/mouse
 - [ ] Debian package created
 
+## Setup
+- Clone the repository
+- Open terminal in the root directory of the repository
+- Run `make`
+- `bin/kilo` is the program created
+
 ## Shortcuts
 
 - `Ctrl-s` => save current file

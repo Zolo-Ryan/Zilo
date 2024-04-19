@@ -21,7 +21,7 @@ void initZBuffer(int n,char **args){
     if(n <= 1) return;
     z.currentPointer = n-2; // last file
     z.size = n-1;
-    z.openBuffers = malloc(n*sizeof(struct editorConfig));
+    z.openBuffers = malloc((n-1)*sizeof(struct editorConfig));
     
     for(int i = 1;i<n;i++){
         initEditor();
