@@ -173,13 +173,13 @@ void editorDrawMenuBar(struct abuf *ab){
     int i = 0,j = 0;
     // puts all file name into menu (can't handle files with long names or too many file names)
     while(i < z.size){
-        if(j+(int)strlen(z.openBuffers[i].filename) >= E.screencols) break;
+        if(j + charptrLen(z.openBuffers[i].filename) >= E.screencols) break;
         if(i == z.currentPointer){
             sprintf(&buf[j],"\x1b[m");
             j += 3;
         }
         
-        j += sprintf(&buf[j]," %s ",z.openBuffers[i].filename);
+        j += sprintf(&buf[j]," %s ",charptrName(z.openBuffers[i].filename));
         
         if(i == z.currentPointer){
             sprintf(&buf[j],"\x1b[45m");
@@ -189,9 +189,8 @@ void editorDrawMenuBar(struct abuf *ab){
         i++;
     }
     buf[j] = '\0';
-    E.menumsg = buf;
     abAppend(ab,"\x1b[45m",5);
-    abAppend(ab,E.menumsg,strlen(E.menumsg)+1);
+    abAppend(ab,buf,strlen(buf)+1);
     while(j++ - 8 < E.screencols) // -8 since +5 and +3 due to color change
         abAppend(ab," ",1);
     abAppend(ab,"\r\n",2);

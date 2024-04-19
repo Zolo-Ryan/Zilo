@@ -21,7 +21,7 @@ void initZBuffer(int n,char **args){
     if(n <= 1) return;
     z.currentPointer = n-2; // last file
     z.size = n-1;
-    z.openBuffers = malloc((n-1)*sizeof(struct editorConfig));
+    z.openBuffers = realloc(z.openBuffers,z.size*sizeof(struct editorConfig));
     
     for(int i = 1;i<n;i++){
         initEditor();
@@ -38,8 +38,8 @@ void addBuffer(char *filename){
     memmove(&z.openBuffers[current+1],&z.openBuffers[current],(z.size - current)*sizeof(struct editorConfig));
     
     z.size++;
-
     initEditor();
+    
     if(filename != NULL){ // handling new file opened
         if(access(filename,F_OK) != -1)
             editorOpen(filename);

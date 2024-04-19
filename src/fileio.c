@@ -4,6 +4,7 @@
 #include<highlight.h>
 #include<row_operations.h>
 #include<terminal.h>
+#include<zBuffer.h>
 
 void editorSave(void){
     if(E.dirty <= 0){
@@ -29,6 +30,7 @@ void editorSave(void){
                 free(buf);
                 editorSetStatusMessage("%d bytes written to disk",len);
                 E.dirty = 0; // after saving file is clean
+                z.openBuffers[z.currentPointer] = E;
                 return;
             }
         }

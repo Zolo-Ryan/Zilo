@@ -76,7 +76,6 @@
         int dirty; // to track if any changes are made to file
         char *filename;
         char statusmsg[80];
-        char *menumsg;
         time_t statusmsg_time;
         struct editorSyntax *syntax;
         struct termios orig_termios;

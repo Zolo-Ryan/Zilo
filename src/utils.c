@@ -25,3 +25,14 @@ int allClean(zBuffer z){
         if(z.openBuffers[i].dirty) return 0;
     return 1 && E.dirty == 0 ? 1: 0;
 }
+/* gives length of char* */
+int charptrLen(char *str){
+    if(str == NULL) return 0;
+    else return strlen(str);
+}
+
+/* gives name of char* */
+char *charptrName(char *str){
+    if(str == NULL) return "Untitled";
+    else return str;
+}

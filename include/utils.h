@@ -7,4 +7,6 @@
     int is_open_character(int);
     int digits(int);
     int allClean(zBuffer);
+    int charptrLen(char*);
+    char *charptrName(char*);
 #endif

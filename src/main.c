@@ -14,7 +14,13 @@ int main(int argc, char *argv[])
         initZBuffer(argc,argv);
         E = z.openBuffers[z.currentPointer];
     }
-    else initEditor();
+    else{
+        initEditor();
+        z.size++;
+        z.currentPointer++;
+        z.openBuffers = realloc(z.openBuffers,z.size*sizeof(struct editorConfig));
+        z.openBuffers[z.currentPointer] = E;
+    }
 
     editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-G = Goto");
     while (1) {
