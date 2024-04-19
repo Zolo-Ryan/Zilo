@@ -24,6 +24,8 @@ int main(int argc, char *argv[])
 
     editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-G = Goto");
     while (1) {
+        if(getWindowSize(&E.screenrows,&E.screencols) == -1) die("getWindowSize");
+        E.screenrows -= 3;
         editorRefreshScreen();
         editorProcessKeypress();
     }
