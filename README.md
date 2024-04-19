@@ -23,6 +23,7 @@ ref: https://viewsourcecode.org/snaptoken/kilo/index.html
 - Open terminal in the root directory of the repository
 - Run `make`
 - `bin/kilo` is the program created
+- run `bin/./kilo` without any arguments else give it a file name present in current directory
 
 ## Shortcuts
 
