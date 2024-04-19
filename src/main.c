@@ -10,6 +10,22 @@
 int main(int argc, char *argv[])
 {
     enableRawMode();
+    if(argc == 2){
+        if(!strcmp(argv[1],"-h")){
+            fprintf(stdout,"Type man zilo for help\n");
+            exit(EXIT_SUCCESS);
+        }else if(!strcmp(argv[1],"-v")){
+            fprintf(stdout,"Zilo version is: %s\n",KILO_VERSION);
+            exit(EXIT_SUCCESS);
+        }else if(!strcmp(argv[1],"-hv") || !strcmp(argv[1],"-vh")){
+            fprintf(stdout,"%s\n",KILO_VERSION);
+            fprintf(stdout,"Type man zilo for help\n");
+            exit(EXIT_SUCCESS);
+        }else if(argv[1][0] == '-'){
+            fprintf(stdout,"Type man zilo for help");
+            exit(EXIT_SUCCESS);
+        }
+    }
     if(argc >= 2){
         initZBuffer(argc,argv);
         E = z.openBuffers[z.currentPointer];
