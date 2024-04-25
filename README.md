@@ -55,3 +55,4 @@ Some bugs I am too lazy to fix.
 
 - Menubar give up when there are too many files or the file name is too large
 - After a find search is done, the color is not reverted back to normal
+
