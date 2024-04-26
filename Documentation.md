@@ -235,3 +235,26 @@ The source code is divided into 2 directories
     - Returns `Untitled` if `filename` is NULL else return `str`
 
 #### 14. zBuffer.h
+- Header file to maintain all the opened files in the editor.
+- **typedef struct zBuffer**
+    - The definiton of new data structure created to manage all the opened files.
+    - `struct editorConfig *openBuffers` - Metadata of all the files.
+    - `int size` - number of files opened.
+    - `int currentPointer` - file currently foccused.
+- **void switchBuffer**(int)
+    - Used to switch the current file to another opened file.
+    - Takes `val` - the index of file to be switched to.
+- **void initZBuffer**(int,char**)
+    - Used to initialize the ZBuffer with all the file contents of each file.
+    - Take 2 parameters `n` - `argc` from the main function. `n-1` = number of files
+    - `argv` - contains the filenames
+- **void addBuffer**(char*)
+    - Used to open another file.
+    - Takes one parameter `filename` - file to be opened.
+- **void removeBuffer**(void)
+    - Used to close the current file.
+
+```
+Hope the documentation will serve its purpose.
+If unable to, please send your queries at: zoloryan781@gmail.com
+```
