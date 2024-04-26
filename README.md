@@ -1,6 +1,8 @@
 # A text editor in C
 Made from scratch <br>
-ref: https://viewsourcecode.org/snaptoken/kilo/index.html
+ref: [Kilo Text Editor](https://viewsourcecode.org/snaptoken/kilo/index.html)
+
+Documentation: [Here](./Documentation.md)
 
 ## Additional functionalities
 
