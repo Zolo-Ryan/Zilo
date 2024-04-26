@@ -18,7 +18,7 @@ Documentation: [Here](./Documentation.md)
 - [ ] Syntax Higlighting for java
 - [ ] Auto indent
 - [ ] Scrolling with touchpad/mouse
-- [ ] Debian package created
+- [X] Debian package created
 
 ## Setup
 - Clone the repository
