@@ -148,20 +148,55 @@ The source code is divided into 2 directories
 #### 11. row_operations.h
 - Header file to perform operations on the row. `editor_operations.h` will use some of `row_operations.h` functions internally
 - **void editorInsertRow**(int,char*,size_t)
-    - oks
+    - Used to insert a new row into the editor, when enter key is pressed.
+    - Takes 3 parameters, first is `at`, the index at which new row is to be inserted.
+    - second parameter is `s` - string that is to be put in that row
+    - third parameter is `len` - lenght of string used
 - **void editorUpdateRow**(erow*)
-    - oks
+    - Used to handle the proper rendering of the `\t` - tab character.
+    - Takes `row` as parameter - the row which is to be updated.
 - **int editorRowCxToRx**(erow*,int)
-    - oks
+    - Used to conver `E.cx` of a `row` into the corresponding `E.rx`
+    - Takes two parameters `row` - the row whose `rx` is needed
+    - second parameter is `cx` the value to be converted to `rx`
+    - Returns the corresponding `rx`
 - **void editorRowInsertChar**(erow*,int,int)
-    - oks
+    - Used to insert a character into the specified editor row.
+    - Takes 3 parameters. First parameter is  `row` - The pointer to row into which character is to be inserted.
+    - Second parameter is `E.cx` the index in `row` where the character is to be inserted.
+    - Third parameter is `c` - character to be inserted.
 - **void editorRowDelChar**(erow*,int)
-    - oks
+    - Used to delete a character from a row.
+    - Needs 2 parameters. First is `row` - pointer to the row whose character is to be deleted.
+    - Second is `at` - index in `row` where the character is to be deleted.
 - **void editorFreeRow**(erow*)
-    - oks
+    - Used to free a `row` created.
+    - Takes one parameter `row` - pointer to row which is to be freed.
 - **void editorDelRow**(int)
-    - oks
+    - Used to delete a whole row
+    - Takes one parameter `at` - the row number which is to be deleted.
 - **void editorRowAppendString**(erow*,char*,size_t)
-    - oks
+    - Used to append a string into a row.
+    - Takes 3 parameters `row` - pointer to row
+    - Second is `s` - string to be appended.
+    - Third `len` - len of string
 - **int editorRowRxToCx**(erow*,int)
-    - oks
+    - Converts the `E.rx` to corresponding `E.cx` value.
+    - `erow *row` - pointer to the row
+    - `int rx` - rx to be converted
+    - returns the corresponding `cx`
+
+#### 12. terminal.h
+- Header file containing all the functions related to interact with the terminal
+- **void enableRawMode**(void)
+    - ok
+- **void disableRawMode**(void)
+    - ok
+- **void die**(void)
+    - ok
+- **int editorReadKey**(void)
+    - ok
+- **int getWindowSize**(int*,int*)
+    - ok
+- **int getCursorPosition**(int*,int*)
+    - ok
