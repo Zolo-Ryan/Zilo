@@ -27,6 +27,12 @@ Documentation: [Here](./Documentation.md)
 - `bin/kilo` is the program created
 - run `bin/./kilo` without any arguments else give it a file name present in current directory
 
+## Installation
+zilo.deb is package build using bin/kilo. If you want you can install zilo on your linux system as well. Just run the following command:
+```
+sudo apt install ./zilo.deb
+```
+
 ## Shortcuts
 
 - `Ctrl-s` => save current file
