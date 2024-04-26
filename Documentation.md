@@ -120,19 +120,48 @@ The source code is divided into 2 directories
 
 #### 10. output.h
 - Header file to handle all the output (visible to user) operations.
-- **editorRefreshScreen**(void)
-    - ok
-- **editorDrawRows**(struct abuf*)
-    - ok
-- **editorScroll**(void)
-    - ok
-- **editorDrawStatusBar**(struct abuf*)
-    - ok
-- **editorDrawMenuBar**(struct abuf*)
-    - ok
-- **editorSetStatusMessage**(const char*,...)
-    - ok
-- **editorDrawMessageBar**(struct abuf*)
-    - ok
-- **editorDrawSidebar**(struct abuf*,int)
-    - ok
+- **void editorRefreshScreen**(void)
+    - Responsible to draw rows (`editorDrawRows`), menubar(`editorDrawMenuBar`), status bar(`editorDrawStatusBar`) and message bar(`editorDrawMessageBar`) by calling the respective functions. As well as to clear the screen.
+- **void editorDrawRows**(struct abuf*)
+    - Responsible to render the file on the screen. Uses `editorDrawSidebar` to represent the line number.
+    - Takes one parameter `ab` - the buffer into which all the contents will be added and then using write() system call all the contents are written in one go on terminal.
+- **void editorScroll**(void)
+    - Responsible to handle cursor is located correctly on the editor by setting bounds on it.
+    - Handles `coloff` (column offset) and `rowoff` (row offset)
+- **void editorDrawStatusBar**(struct abuf*)
+    - Responsible to draw the status bar at the last second line of the screen.
+    - Takes one parameter `ab` - the buffer into which all the contents will be added and then using write() system call all the contents are written in one go on terminal.
+- **void editorDrawMenuBar**(struct abuf*)
+    - Responsible to draw menubar at top of editor to display the currently opened files
+    - Takes one parameter `ab` - the buffer into which all the contents will be added and then using write() system call all the contents are written in one go on terminal.
+- **void editorSetStatusMessage**(const char*,...)
+    - Used to set the status message of the editor, which is used by `editorDrawMessageBar` to display the message at the bottom of the editor.
+    - This is a variadic function just like `printf`. Specially created to set `E.statusmsg` and `E.statusmsg_time`
+- **void editorDrawMessageBar**(struct abuf*)
+    - Used to write `E.statusmsg` at the bottom of the screen.
+    - Takes one parameter `ab` - the buffer into which all the contents will be added and then using write() system call all the contents are written in one go on terminal.
+- **void editorDrawSidebar**(struct abuf*,int)
+    - Used to draw the sidebar of the editor.
+    - Takes one parameter `struct abuf *ab` - the buffer into which all the contents will be added and then using write() system call all the contents are written in one go on terminal.
+    - Second parameter is `filerow`. Used to know which line number is this.
+
+#### 11. row_operations.h
+- Header file to perform operations on the row. `editor_operations.h` will use some of `row_operations.h` functions internally
+- **void editorInsertRow**(int,char*,size_t)
+    - oks
+- **void editorUpdateRow**(erow*)
+    - oks
+- **int editorRowCxToRx**(erow*,int)
+    - oks
+- **void editorRowInsertChar**(erow*,int,int)
+    - oks
+- **void editorRowDelChar**(erow*,int)
+    - oks
+- **void editorFreeRow**(erow*)
+    - oks
+- **void editorDelRow**(int)
+    - oks
+- **void editorRowAppendString**(erow*,char*,size_t)
+    - oks
+- **int editorRowRxToCx**(erow*,int)
+    - oks

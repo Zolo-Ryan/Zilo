@@ -147,11 +147,12 @@ void editorScroll(){
     if(E.rx < E.coloff){ // for cursor going left
         E.coloff = E.rx;
     }
-    if(E.rx >= E.coloff + E.screencols - E.sidebar_width){ // for cursor going right
-        E.coloff = E.rx - E.screencols + 1 + E.sidebar_width;
+    if(E.rx >= E.coloff + (E.screencols - E.sidebar_width)){ // for cursor going right
+        E.coloff = E.rx - (E.screencols - E.sidebar_width) + 1;
     }
 }
 void editorDrawSidebar(struct abuf *ab,int num){
+    // num will be the file row starting from 0
     if(num >= E.numrows) return;
     char buf[16];
     int padding = E.sidebar_width - 1 - digits(num+1); // -1 for right padding
