@@ -189,14 +189,49 @@ The source code is divided into 2 directories
 #### 12. terminal.h
 - Header file containing all the functions related to interact with the terminal
 - **void enableRawMode**(void)
-    - ok
+    - Used to disable echo, cooked, etc. modes of the terminal as well as interrupts. This converts the terminal into the form suitable to make our own text editor.
 - **void disableRawMode**(void)
-    - ok
-- **void die**(void)
-    - ok
+    - After exiting the editor, the terminal should be reverted back to its original state. This function handles that.
+- **void die**(const char*)
+    - A function made for error handling (might move to `utils.h` in next versions)
+    - Takes a string `s` as parameter to display the type of error occured.
 - **int editorReadKey**(void)
-    - ok
+    - Used to read a key pressed by the user. Since some key presses genrate more than one character. This functions handles that and returns the corresponding value for the key pressed.
 - **int getWindowSize**(int*,int*)
-    - ok
+    - Used to get the dimensions of the terminal. 
+    - Returns 0 in case of success, else otherwise
+    - Takes two parameters `rows` - pointer used to store the row dimensions of the terminal.
+    - `cols` - to store the col dimensions of the terminal
 - **int getCursorPosition**(int*,int*)
-    - ok
+    - Used to get the current cursor position.
+    - Used by `getWindowSize` internally.
+    - Returns 0 in case of success, else otherwise
+
+#### 13. utils.h
+- A utility header containing all the extra funcions.
+- **int is_seperator**(int)
+    - Used to check if the given characater belongs to `,.()+-/*=~%<>[];` or ` ` or `\0`.
+    - Takes `c` - the character to be tested
+    - Returns true if matched, else otherwise.
+- **int is_open_character**(int)
+    - Used to check if the given character is belongs to `({['"` or not.
+    - Takes `c` - the character to be tested
+    - Returns the corresponding closing character if matched else -1.
+- **int digits**(int)
+    - Used to count the number of digits in the given number.
+    - Takes `a` - number whose digits is to be counted.
+    - Returns the count of digits
+- **int allClean**(zBuffer)
+    - Used to check if any of the open files are dirty or not.
+    - Take `z` - the buffer holding the current opened files
+    - Return true if none of the are dirty else false
+- **int charptrLen**(char*)
+    - Used to return the len of a string.
+    - Takes `str` - pointer to string
+    - Returns 0 if `str` is NULL else `strlen(str)`
+- **char * charptrName**(char*)
+    - Used to return the name of file opened.
+    - Takes `str` - filename
+    - Returns `Untitled` if `filename` is NULL else return `str`
+
+#### 14. zBuffer.h
