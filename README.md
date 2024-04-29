@@ -24,7 +24,7 @@ Documentation: [Here](./Documentation.md)
 - [ ] Cut, Copy and paste selected area
 - [ ] Relative line numbers
 - [ ] Syntax Higlighting for java
-- [ ] Auto indent
+- [X] Auto indent
 - [ ] Scrolling with touchpad/mouse
 - [X] Debian package created
 
@@ -66,4 +66,4 @@ Some bugs I am too lazy to fix.
 
 - Menubar give up when there are too many files or the file name is too large
 - After a find search is done, the color is not reverted back to normal
-- After pressing enter the search doesn't stop at the give line number, instead it moves to the first find query.
+- After pressing enter the search doesn't stop at the given line number, instead it moves to the first find query.

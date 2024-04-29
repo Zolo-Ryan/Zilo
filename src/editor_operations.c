@@ -2,20 +2,27 @@
 #include<row_operations.h>
 #include<init.h>
 #include<input.h>
-
+#include<utils.h>
 void editorInsertNewline(){
     if(E.cx == 0){
         editorInsertRow(E.cy,"",0);
+        E.cx = 0;
     }else{
         erow *row = &E.row[E.cy];
-        editorInsertRow(E.cy+1,&row->chars[E.cx],row->size - E.cx);
+        int len = 0;            // len of buffer created
+        int newCx = 0;          // location of new Cx
+        
+        char *buf = prependSpaces(E.cy,E.cx,&len,&newCx);
+        editorInsertRow(E.cy+1,buf,len);
+        free(buf);
+
         row = &E.row[E.cy]; // reassign since the above fxn calls realloc which might change the 
         row->size = E.cx;
         row->chars[row->size] = '\0';
         editorUpdateRow(row);
+        E.cx = newCx;
     }
     E.cy++;
-    E.cx = 0;
 }
 void editorDelChar(){
     if(E.cy == E.numrows) return;

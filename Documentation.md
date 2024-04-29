@@ -233,6 +233,12 @@ The source code is divided into 2 directories
     - Used to return the name of file opened.
     - Takes `str` - filename
     - Returns `Untitled` if `filename` is NULL else return `str`
+- **char * prependSpaces**(int,int,int*,int*)
+    - Used to return a newly created buffer having correct number of spaces prepended for auto indendation to work.
+    - First parameter is `cy` - the row whose indendation will be used to add spaces into buffer. (prev row)
+    - `cx` of cursor, so as to add spaces <= current cursor location.
+    - `*l` is the pointer which will store the len of buffer created
+    - `*newCx` will store the new cursor x location in the newly generated line
 
 #### 14. zBuffer.h
 - Header file to maintain all the opened files in the editor.

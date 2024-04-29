@@ -9,4 +9,5 @@
     int allClean(zBuffer);
     int charptrLen(char*);
     char *charptrName(char*);
+    char *prependSpaces(int,int,int*,int*);
 #endif

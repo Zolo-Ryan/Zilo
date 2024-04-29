@@ -13,7 +13,7 @@
 #ifndef MAIN_H
 #define MAIN_H
     #define KILO_VERSION "1.0.0"
-    #define KILO_TAB_STOP 8
+    #define KILO_TAB_STOP 4
     #define KILO_QUIT_TIMES 1
     #define CTRL_KEY(k) ((k) & 0x1f)
     #define HL_HIGHLIGHT_NUMBERS (1<<0)

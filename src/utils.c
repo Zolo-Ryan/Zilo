@@ -36,3 +36,28 @@ char *charptrName(char *str){
     if(str == NULL) return "Untitled";
     else return str;
 }
+
+// cy is line whose count of spaces will be used, cx is cursor postion in cy, *l will hold the length of buffer created and *newCx will hold the new location of cursor.
+// Used to prependSpaces in a newLine generated
+char *prependSpaces(int cy,int cx,int *l,int *newCx){
+    erow *row = &E.row[cy];
+    int leadingSpaces = 0;
+    int i = 0;
+    while(i<row->rsize){
+        if(row->render[i] == ' ')
+            leadingSpaces++;
+        else break;
+        i++;
+    }
+    int len = row->size - cx + leadingSpaces;
+    leadingSpaces = leadingSpaces <= cx ? leadingSpaces : cx;
+
+    char *buf = malloc(len);
+    memset(buf,' ',leadingSpaces);
+    snprintf(&buf[leadingSpaces],len-leadingSpaces + 1,&row->chars[cx]);
+    buf[len] = '\0';
+    
+    *l = len;
+    *newCx = leadingSpaces;
+    return buf;
+}
