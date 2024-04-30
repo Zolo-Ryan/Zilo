@@ -22,8 +22,8 @@ Documentation: [Here](./Documentation.md)
 - [x] Close a specific file
 - [x] Cut, Copy and paste whole lines
 - [ ] Cut, Copy and paste selected area
-- [ ] Relative line numbers
-- [ ] Syntax Higlighting for java
+- [X] Relative line numbers (Done but not visible to user)
+- [X] Syntax Higlighting for java
 - [X] Auto indent
 - [ ] Scrolling with touchpad/mouse
 - [X] Debian package created

@@ -155,6 +155,8 @@ void editorDrawSidebar(struct abuf *ab,int num){
     // num will be the file row starting from 0
     if(num >= E.numrows) return;
     char buf[16];
+    // if(num > E.cy) num = num - E.cy;     for relative line
+    // else num = E.cy - num;               numbers
     int padding = E.sidebar_width - 1 - digits(num+1); // -1 for right padding
     int nlen = snprintf(buf,sizeof(buf),"%d",num+1);
     
